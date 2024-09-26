@@ -31,11 +31,16 @@ You can install the required packages with the following command: ```bash pip in
 #Script Overview 
 
   #Functions 
-    - `load_urls(filename)`:  Loads URLs from a text file. 
-    - `is_profile_url(url)`:  Checks if a URL is related to a profile or user. 
-    - `scrape_profile(url)`: Scrapes the profile name and profile information length from the URL. 
-    - `extract_profiles_from_site(base_url)`: Extracts and processes profile links from a website. 
-    - `process_sites_and_save_to_csv(site_urls, csv_filename, proxies)`: Scrapes multiple websites and exports the results to a CSV file. 
+    - ```load_urls(filename)```:  Loads URLs from a text file. 
+    
+    - ```is_profile_url(url)```:  Checks if a URL is related to a profile or user. 
+    
+    - ```scrape_profile(url)```: Scrapes the profile name and profile information length from the URL.
+    
+    - ```extract_profiles_from_site(base_url)```: Extracts and processes profile links from a website. 
+    
+    - ```process_sites_and_save_to_csv(site_urls, csv_filename, proxies)```: Scrapes multiple websites and exports the 
+    results to a CSV file. 
     
 # Example If the input URL is a website containing profiles, the script will output a CSV like:
 
