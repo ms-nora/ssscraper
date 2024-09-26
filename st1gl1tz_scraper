@@ -1,0 +1,82 @@
+import requests
+from bs4 import BeautifulSoup
+import csv
+import re
+from urllib.parse import urljoin
+
+
+def load_urls(filename):
+    with open(filename, 'r') as file:
+        urls = file.readlines()
+    return [url.strip() for url in urls]
+
+def is_profile_url(url):
+    return bool(re.search(r'/profile/|/user/', url))
+
+def scrape_profile(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        profile_name = soup.find('h1').get_text(strip=True) if soup.find('h1') else 'N/A'
+        profile_info = soup.find('div', class_='profile-info')
+        info_length = len(profile_info.get_text(strip=True)) if profile_info else 0
+        
+        return (url, profile_name, info_length)
+    except requests.RequestException as e:
+        return (url, 'Error', 0)
+
+def extract_profiles_from_site(base_url):
+    profiles = []
+    try:
+        response = requests.get(base_url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        links = soup.find_all('a', href=True)
+        for link in links:
+            profile_url = urljoin(base_url, link['href'])
+            if is_profile_url(profile_url):
+                profiles.append(profile_url)
+
+    except requests.RequestException as e:
+        print(f"Failed to fetch {base_url}: {e}")
+    
+    detailed_profiles = []
+    for url in profiles:
+        detailed_profiles.append(scrape_profile(url))
+    
+    return detailed_profiles
+
+def process_sites_and_save_to_csv(site_urls, csv_filename, proxies):
+    with open(csv_filename, 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Profile URL', 'Profile Name', 'Info Length', 'Category'])
+        
+        for base_url in site_urls:
+            profiles = extract_profiles_from_site(base_url)
+            
+            profiles.sort(key=lambda x: x[2], reverse=True)
+            
+            for i, profile in enumerate(profiles):
+                if i < 5:
+                    category = 'Best'
+                else:
+                    category = 'Not So Good'
+                
+                writer.writerow((*profile, category))
+
+def main():
+    site_urls = load_urls('liste_links.txt')
+    
+    # your proxy here
+    proxies = {
+        
+        'https': 'https://192......',
+    }
+    
+    process_sites_and_save_to_csv(site_urls, 'CSV_Profile_links.csv', proxies)
+
+if __name__ == "__main__":
+    main()
